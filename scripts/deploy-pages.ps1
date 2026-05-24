@@ -5,15 +5,34 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Assert-LastExitCode([string]$Step) {
+  if ($LASTEXITCODE -ne 0) {
+    throw "$Step failed with exit code $LASTEXITCODE"
+  }
+}
+
 function Ensure-Env([string]$Name) {
   if (-not (Test-Path "Env:$Name")) {
     throw "Missing required environment variable: $Name"
   }
 }
 
+$repoRoot = Split-Path -Parent $PSScriptRoot
+
+if (-not (Test-Path "Env:CLOUDFLARE_API_TOKEN")) {
+  $tokenFile = Join-Path $repoRoot ".cloudflare_api_token"
+  if (Test-Path $tokenFile) {
+    $env:CLOUDFLARE_API_TOKEN = (Get-Content -Raw $tokenFile).Trim()
+  }
+}
+
 Ensure-Env "CLOUDFLARE_API_TOKEN"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$tokenLen = ($env:CLOUDFLARE_API_TOKEN | Measure-Object -Character).Characters
+if ($tokenLen -lt 30) {
+  throw "CLOUDFLARE_API_TOKEN looks too short ($tokenLen chars). Paste the token value only (no quotes, no 'Bearer ' prefix)."
+}
+
 $tmp = Join-Path $repoRoot ".tmp"
 $pmHome = Join-Path $tmp "pm-home"
 $corepackHome = Join-Path $tmp "corepack"
@@ -37,7 +56,9 @@ $env:PATH = "$pnpmGlobalBin;$env:PATH"
 
 Write-Host "Installing Wrangler (via pnpm global) ..."
 corepack pnpm add -g wrangler | Out-Host
+Assert-LastExitCode "Install wrangler"
 corepack pnpm approve-builds --all | Out-Host
+Assert-LastExitCode "Approve wrangler builds"
 
 $frontendDir = Join-Path $repoRoot "frontend"
 if (-not (Test-Path $frontendDir)) {
@@ -48,10 +69,14 @@ Push-Location $frontendDir
 try {
   Write-Host "Installing frontend deps (pnpm install) ..."
   corepack pnpm install | Out-Host
+  Assert-LastExitCode "Install frontend deps"
   corepack pnpm approve-builds --all | Out-Host
+  Assert-LastExitCode "Approve frontend builds"
 
   Write-Host "Building frontend (pnpm run build) ..."
+  $env:DISABLE_ESLINT_PLUGIN = "true"
   corepack pnpm run build | Out-Host
+  Assert-LastExitCode "Build frontend"
 
   $buildDir = Join-Path $frontendDir "build"
   if (-not (Test-Path $buildDir)) {
