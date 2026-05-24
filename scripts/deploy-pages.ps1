@@ -37,6 +37,7 @@ $env:PATH = "$pnpmGlobalBin;$env:PATH"
 
 Write-Host "Installing Wrangler (via pnpm global) ..."
 corepack pnpm add -g wrangler | Out-Host
+corepack pnpm approve-builds --all | Out-Host
 
 $frontendDir = Join-Path $repoRoot "frontend"
 if (-not (Test-Path $frontendDir)) {
@@ -45,11 +46,12 @@ if (-not (Test-Path $frontendDir)) {
 
 Push-Location $frontendDir
 try {
-  Write-Host "Installing frontend deps (npm ci) ..."
-  npm.cmd ci | Out-Host
+  Write-Host "Installing frontend deps (pnpm install) ..."
+  corepack pnpm install | Out-Host
+  corepack pnpm approve-builds --all | Out-Host
 
-  Write-Host "Building frontend (npm run build) ..."
-  npm.cmd run build | Out-Host
+  Write-Host "Building frontend (pnpm run build) ..."
+  corepack pnpm run build | Out-Host
 
   $buildDir = Join-Path $frontendDir "build"
   if (-not (Test-Path $buildDir)) {
