@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Ensure-Env([string]$Name) {
-  if (-not $env:$Name) {
+  if (-not (Test-Path "Env:$Name")) {
     throw "Missing required environment variable: $Name"
   }
 }
