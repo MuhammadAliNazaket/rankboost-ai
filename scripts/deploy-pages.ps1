@@ -1,6 +1,7 @@
 param(
   [string]$ProjectName = "rankboost-ai",
-  [string]$ProductionBranch = "main"
+  [string]$ProductionBranch = "main",
+  [string]$AccountId = $env:CLOUDFLARE_ACCOUNT_ID
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +33,12 @@ $tokenLen = ($env:CLOUDFLARE_API_TOKEN | Measure-Object -Character).Characters
 if ($tokenLen -lt 30) {
   throw "CLOUDFLARE_API_TOKEN looks too short ($tokenLen chars). Paste the token value only (no quotes, no 'Bearer ' prefix)."
 }
+
+if (-not $AccountId) {
+  throw "Missing CLOUDFLARE_ACCOUNT_ID. Add it as an env var (or pass -AccountId) to avoid Wrangler needing account-list permissions."
+}
+
+$env:CLOUDFLARE_ACCOUNT_ID = $AccountId
 
 $tmp = Join-Path $repoRoot ".tmp"
 $pmHome = Join-Path $tmp "pm-home"
