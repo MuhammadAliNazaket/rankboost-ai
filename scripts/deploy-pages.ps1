@@ -70,9 +70,16 @@ Push-Location $frontendDir
 try {
   Write-Host "Installing frontend deps (pnpm install) ..."
   corepack pnpm install | Out-Host
-  Assert-LastExitCode "Install frontend deps"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "pnpm install returned exit code $LASTEXITCODE; attempting approve-builds + reinstall..."
+  }
+
   corepack pnpm approve-builds --all | Out-Host
   Assert-LastExitCode "Approve frontend builds"
+
+  # Re-run install so any newly-approved scripts can run and the install exits cleanly.
+  corepack pnpm install | Out-Host
+  Assert-LastExitCode "Install frontend deps (post-approval)"
 
   Write-Host "Building frontend (pnpm run build) ..."
   $env:DISABLE_ESLINT_PLUGIN = "true"
