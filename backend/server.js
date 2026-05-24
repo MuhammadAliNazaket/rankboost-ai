@@ -23,10 +23,35 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-}));
+const parseCsv = (value) =>
+  String(value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const corsOrigins = parseCsv(process.env.CORS_ORIGINS || process.env.CORS_ORIGIN);
+const corsOriginRegexes = parseCsv(process.env.CORS_ORIGIN_REGEX).map((pattern) => {
+  try {
+    return new RegExp(pattern);
+  } catch {
+    return null;
+  }
+}).filter(Boolean);
+
+const allowAllOrigins = corsOrigins.includes("*");
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowAllOrigins) return callback(null, true);
+      if (corsOrigins.includes(origin)) return callback(null, true);
+      if (corsOriginRegexes.some((rx) => rx.test(origin))) return callback(null, true);
+      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+    },
+    credentials: false,
+  })
+);
 
 app.use(express.json({ limit: "1mb" }));
 
