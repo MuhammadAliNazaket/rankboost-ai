@@ -14,14 +14,18 @@
     "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
+    "chrome-launcher": "^1.2.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "lighthouse": "^12.8.2",
     "mysql2": "^3.22.3",
-    "openai": "^6.38.0"
+    "openai": "^6.38.0",
+    "pdfkit": "^0.18.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "packageManager": "pnpm@9.15.5+sha512.845196026aab1cc3f098a0474b64dfbab2afe7a1b4e91dd86895d8e4aa32a7a6d03049e2d0ad770bbe4de023a7122fb68c1a1d6e0d033c7076085f9d5d4800d4"
 }
