@@ -53,6 +53,7 @@ $env:NPM_CONFIG_CACHE = $npmCache
 $pnpmGlobalBin = Join-Path $env:LOCALAPPDATA "pnpm\bin"
 New-Item -ItemType Directory -Force -Path $pnpmGlobalBin | Out-Null
 $env:PATH = "$pnpmGlobalBin;$env:PATH"
+$env:COREPACK_ENABLE_AUTO_PIN = "0"
 
 Write-Host "Installing Wrangler (via pnpm global) ..."
 corepack pnpm add -g wrangler | Out-Host
