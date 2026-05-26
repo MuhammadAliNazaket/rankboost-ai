@@ -15,6 +15,7 @@ const lighthouseRoutes = require("./routes/lighthouse");
 const keywordSeoRoutes = require("./routes/keywordSeo");
 const competitorTrafficRoutes = require("./routes/competitorTraffic");
 const pdfRoutes = require("./routes/pdf");
+const backlinkRoutes = require("./routes/backlink");
 
 const app = express();
 
@@ -29,7 +30,7 @@ const parseCsv = (value) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-const corsOrigins = parseCsv(process.env.CORS_ORIGINS || process.env.CORS_ORIGIN);
+let corsOrigins = parseCsv(process.env.CORS_ORIGINS || process.env.CORS_ORIGIN);
 const corsOriginRegexes = parseCsv(process.env.CORS_ORIGIN_REGEX).map((pattern) => {
   try {
     return new RegExp(pattern);
@@ -37,6 +38,15 @@ const corsOriginRegexes = parseCsv(process.env.CORS_ORIGIN_REGEX).map((pattern) 
     return null;
   }
 }).filter(Boolean);
+
+if (corsOrigins.length === 0 && corsOriginRegexes.length === 0) {
+  corsOrigins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ];
+}
 
 const allowAllOrigins = corsOrigins.includes("*");
 
@@ -47,7 +57,7 @@ app.use(
       if (allowAllOrigins) return callback(null, true);
       if (corsOrigins.includes(origin)) return callback(null, true);
       if (corsOriginRegexes.some((rx) => rx.test(origin))) return callback(null, true);
-      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+      return callback(null, false);
     },
     credentials: false,
   })
@@ -64,6 +74,7 @@ app.use("/api/lighthouse", lighthouseRoutes);
 app.use("/api/keyword-seo", keywordSeoRoutes);
 app.use("/api/competitor-traffic", competitorTrafficRoutes);
 app.use("/api/pdf", pdfRoutes);
+app.use("/api/backlink", backlinkRoutes);
 
 
 app.get("/", (req, res) => {

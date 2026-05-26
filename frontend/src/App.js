@@ -10,6 +10,7 @@ import TechnicalSEO from "./pages/TechnicalSEO";
 import PerformanceSEO from "./pages/PerformanceSEO";
 import KeywordSEO from "./pages/KeywordSEO";
 import CompetitorTraffic from "./pages/CompetitorTraffic";
+import BacklinkSEO from "./pages/BacklinkSEO";
 
 function App() {
   return (
@@ -79,6 +80,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+      path="/backlink-seo"
+      element={
+        <ProtectedRoute>
+          <BacklinkSEO />
+        </ProtectedRoute>
+      }
+    />
+
 
       </Routes>
     </BrowserRouter>

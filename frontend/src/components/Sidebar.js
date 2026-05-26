@@ -28,6 +28,7 @@ function Sidebar() {
         <NavLink active={location.pathname === "/keyword-seo"} to="/keyword-seo" label="Keyword SEO" />
         <NavLink active={location.pathname === "/competitor-traffic"} to="/competitor-traffic" label="Competitor Traffic" />
         <NavLink active={location.pathname === "/report"} to="/report" label="Reports" />
+        <NavLink active={location.pathname === "/backlink-seo"} to="/backlink-seo" label="Backlink SEO"/>
 
         <button
           onClick={logout}
